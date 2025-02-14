@@ -1,0 +1,10 @@
+[package]
+name = "icyweb"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+iced = "0.13.1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+iced = { version = "0.13.1", features = ["webgl"] }
