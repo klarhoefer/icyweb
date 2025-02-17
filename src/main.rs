@@ -1,6 +1,6 @@
 
-use iced::{self, Center, Length, Task};
-use iced::widget::{button, column, text, vertical_space, Button};
+use iced::{self, Center, Length, Task, Rectangle, Renderer, Theme, mouse, Color};
+use iced::widget::{button, column, text, vertical_space, Button, canvas};
 
 use reqwest::Client;
 use serde::Deserialize;
@@ -18,12 +18,54 @@ struct IpAddress {
     origin: String,
 }
 
+#[derive(Debug, Clone)]
+struct Circle {
+    x: f32,
+    y: f32,
+    radius: f32,
+}
+
+impl<Msg> canvas::Program<Msg> for Circle {
+    type State = ();
+    fn draw(
+        &self,
+        _state: &(),
+        renderer: &Renderer,
+        _theme: &Theme,
+        bounds: Rectangle,
+        cursor: mouse::Cursor,
+    ) -> Vec<canvas::Geometry> {
+        // We prepare a new `Frame`
+        let mut frame = canvas::Frame::new(renderer, bounds.size());
+
+        // We create a `Path` representing a simple circle
+        let mut point = frame.center();
+        point.x += self.x;
+        point.y += self.y;
+        let circle = canvas::Path::circle(point, self.radius);
+
+        // And fill it with some color
+        frame.fill(&circle, Color::BLACK);
+
+        match cursor {
+            mouse::Cursor::Available(point) => {
+                let circle2 = canvas::Path::circle(point, self.radius);
+                frame.fill(&circle2, Color::from([0.0, 0.0, 1.0]));
+            },
+            mouse::Cursor::Unavailable => (),
+        }
+        
+        // Then, we produce the geometry
+        vec![frame.into_geometry()]
+    }
+}
 
 #[derive(Debug, Clone)]
 struct Model {
     value: i32,
     ip_address: Option<IpAddress>,
     error: Option<String>,
+    cirle: Circle,
 }
 
 impl Model {
@@ -31,7 +73,12 @@ impl Model {
         Model {
             value: 0,
             ip_address: None,
-            error: None
+            error: None,
+            cirle: Circle {
+                x: 100.0,
+                y: 100.0,
+                radius: 50.0,
+            },
         }
     }
 
@@ -57,6 +104,8 @@ impl Model {
             ).width(80),
             vertical_space().height(20),
             text(self.ip_address.as_ref().map_or("Fetching...".to_string(), |ip| ip.origin.clone())),
+            vertical_space().height(20),
+            canvas(&self.cirle).width(Length::Fill).height(Length::Fill),
         ]
         .align_x(Center)
         .width(Length::Fill)
