@@ -5,8 +5,8 @@ edition = "2021"
 
 [dependencies]
 iced = { version = "0.13.1", features = ["canvas"] }
-reqwest = { version = "0.12.12", features = ["json"] }
-serde = { version = "1.0.217", features = ["derive"] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 iced = { version = "0.13.1", features = ["webgl", "canvas"] }
