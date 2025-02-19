@@ -1,5 +1,5 @@
 
-use iced::{self, Center, Length, Task, Rectangle, Renderer, Theme, mouse, Color};
+use iced::{self, Center, Point, Length, Task, Rectangle, Renderer, Theme, mouse, Color};
 use iced::widget::{button, column, text, vertical_space, Button, canvas};
 
 use reqwest::Client;
@@ -38,6 +38,12 @@ impl<Msg> canvas::Program<Msg> for Circle {
         // We prepare a new `Frame`
         let mut frame = canvas::Frame::new(renderer, bounds.size());
 
+        // let mut txt = canvas::Text::default();
+        // txt.content = format!("Bounds: {:?}", bounds);
+
+        // frame.fill_text(txt);
+        frame.fill_text(format!("Bounds: {:?}", bounds));
+
         // We create a `Path` representing a simple circle
         let mut point = frame.center();
         point.x += self.x;
@@ -49,7 +55,8 @@ impl<Msg> canvas::Program<Msg> for Circle {
 
         match cursor {
             mouse::Cursor::Available(point) => {
-                let circle2 = canvas::Path::circle(point, self.radius);
+                let center = Point::new(point.x, point.y - bounds.y);
+                let circle2 = canvas::Path::circle(center, self.radius);
                 frame.fill(&circle2, Color::from([0.0, 0.0, 1.0]));
             },
             mouse::Cursor::Unavailable => (),
